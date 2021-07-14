@@ -5,7 +5,7 @@ const { sha3 } = require('web3-utils')
 const { provider:P } = ethers
 const tld = "eth";
 
-
+const ENS_ROOT = '0x0000000000000000000000000000000000000000000000000000000000000000'
 async function tldis(ens) {
     const accounts = await ethers.getSigners()
     const TLD = 'is'
@@ -14,18 +14,24 @@ async function tldis(ens) {
     await R0.deployed()
     console.log('R0:', R0.address)
     console.log('____ 1')
+    console.log(await ens.owner(ENS_ROOT))
+    
+    let tx;
+    let receipt
     await ens.setSubnodeOwner(
-        '0x0000000000000000000000000000000000000000000000000000000000000000',
-        sha3('is'), accounts[0])
-    console.log('____ 2')
-    await ens.setResolver(namehash.hash('O8.is'), R0.address)
-    await ens.setResolver(namehash.hash('O2.is'), R0.address)
+        ENS_ROOT, sha3('is'), accounts[0].address)
+    console.log(await ens.owner(namehash.hash('is')))
+    await ens.setSubnodeRecord(
+        namehash.hash('is'), 
+        sha3('o8'), accounts[0].address, R0.address, 300)
+
+    console.log('o8.is:', namehash.hash('O8.is'))
+    console.log(await ens.owner(namehash.hash('O8.is')))
     console.log('____ 3')
-    await R0.functions['setAddr(bytes32,address)'](namehash.hash('O8.is'), ethers.utils.getAddress('0x1111111111111111111111111111111111111111'))
-    await R0.functions['setAddr(bytes32,address)'](namehash.hash('O2.is'), ethers.utils.getAddress('0x2222222222222222222222222222222222222222'))
+    await R0.functions['setAddr(bytes32,address)'](namehash.hash('o8.is'), ethers.utils.getAddress('0x1111111111111111111111111111111111111111'))
+    // 
+    // await R0.functions['setAddr(bytes32,address)'](namehash.hash('O2.is'), ethers.utils.getAddress('0x2222222222222222222222222222222222222222'))
     console.log('____ 4')
-
-
 }
 
 async function main() {
@@ -48,6 +54,7 @@ async function main() {
 
     const resolverNode = namehash.hash("resolver");
     const resolverLabel = sha3("resolver");
+
     await ens.setSubnodeOwner(
         '0x0000000000000000000000000000000000000000000000000000000000000000',
         resolverLabel, accounts[0].address)
@@ -89,6 +96,7 @@ async function main() {
     console.log(R1.name)
 
     await tldis(ens)
+    console.log(await P.resolveName('o8.is'))
 }
 
 main()
