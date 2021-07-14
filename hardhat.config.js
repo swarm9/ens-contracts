@@ -28,7 +28,10 @@ module.exports = {
     },
     localhost: {
       url: "http://127.0.0.1:8545"
-    }
+    },
+    g0: {
+      url: "http://127.0.0.1:7545"
+    },
   },
   mocha: {
   },
