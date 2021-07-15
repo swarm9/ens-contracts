@@ -5,3 +5,5 @@ build
 #Hardhat files
 cache
 artifacts
+
+__secerts.json
